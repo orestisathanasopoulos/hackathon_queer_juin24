@@ -32,38 +32,39 @@ function formatResponse(payload, title) {
   return { embeds };
 }
 
+const identityToUserType = {
+  "Candidat·e": "candidate",
+  Journaliste: "journalist",
+  "Etudiant·e/Chercheur·se": "researcher",
+};
+
 window.addEventListener("message", (e) => {
   if (typeof e?.data === "string" && e.data.includes("Tally.FormSubmitted")) {
     const payload = JSON.parse(e.data).payload;
 
-    let webhook = undefined;
     let identity = undefined;
     if (isCandidate(payload)) {
-      console.log("candidate");
       identity = "Candidat·e";
-      webhook = process.env.WEBHOOK_CANDIDATE;
     } else if (isJournalist(payload)) {
-      console.log("Journalist");
       identity = "Journaliste";
-      webhook = pr;
     } else if (isStudent(payload)) {
-      console.log("Etudiant·e/Chercheur·se");
       identity = "Etudiant·e/Chercheur·se";
-      webhook = process.env.WEBHOOK_STUDENT;
     }
-    if (!webhook) return;
 
     const options = {
       method: "post",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formatResponse(payload, identity)),
+      body: JSON.stringify({
+        userType: identityToUserType[identity],
+        message: formatResponse(payload, identity),
+      }),
     };
 
     console.log({ options });
 
-    fetch(webhook, options)
+    fetch("http://localhost:3000/discord-proxy", options)
       .catch((err) => console.error(err))
       .then((response) => console.log(response));
   }
