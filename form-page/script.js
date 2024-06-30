@@ -64,7 +64,10 @@ window.addEventListener("message", (e) => {
 
     console.log({ options });
 
-    fetch("http://localhost:3000/discord-proxy", options)
+    fetch(
+      "https://us-central1-civil-celerity-428013-f5.cloudfunctions.net/function-1",
+      options
+    )
       .catch((err) => console.error(err))
       .then((response) => console.log(response));
   }
